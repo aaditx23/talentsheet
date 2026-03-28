@@ -20,10 +20,10 @@ export const addProject = mutation({
     category: v.string(),
     description: v.string(),
     githubUrl: v.string(),
-    liveLink: v.optional(v.string())
+    screenshotsPath: v.optional(v.string()),
+    liveLink: v.optional(v.string()),
   },
   handler: async (ctx, args) => {
-    // Get highest order
     const projects = await ctx.db
       .query("projects")
       .withIndex("by_userId", (q) => q.eq("userId", args.userId))
@@ -52,6 +52,7 @@ export const updateProject = mutation({
     category: v.optional(v.string()),
     description: v.optional(v.string()),
     githubUrl: v.optional(v.string()),
+    screenshotsPath: v.optional(v.string()),
     liveLink: v.optional(v.string()),
   },
   handler: async (ctx, args) => {

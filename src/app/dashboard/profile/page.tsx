@@ -2,15 +2,13 @@
 
 import { useQuery } from "convex/react";
 import { api } from "../../../../convex/_generated/api";
-import { useState, useEffect } from "react";
-import { getSession } from "@/app/actions/auth.actions";
+import { useSession } from "@/context/SessionContext";
 import { PageHeader } from "@/components/dashboard/PageHeader";
 import { LoadingState } from "@/components/dashboard/LoadingState";
 import { ProfileForm } from "@/components/dashboard/ProfileForm";
 
 export default function ProfilePage() {
-  const [session, setSession] = useState<any>(null);
-  useEffect(() => { getSession().then(setSession); }, []);
+  const session = useSession();
 
   const user = useQuery(api.users.getUserByUsername as any, session?.username ? { username: session.username } : "skip");
 

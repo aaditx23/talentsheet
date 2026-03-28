@@ -2,16 +2,15 @@
 
 import { useQuery, useMutation } from "convex/react";
 import { api } from "../../../../convex/_generated/api";
-import { useState, useEffect } from "react";
-import { getSession } from "@/app/actions/auth.actions";
+import { useState } from "react";
+import { useSession } from "@/context/SessionContext";
 import { PageHeader } from "@/components/dashboard/PageHeader";
 import { LoadingState } from "@/components/dashboard/LoadingState";
 import { SkillForm } from "@/components/dashboard/SkillForm";
 import { SkillList } from "@/components/dashboard/SkillList";
 
 export default function SkillsPage() {
-  const [session, setSession] = useState<any>(null);
-  useEffect(() => { getSession().then(setSession); }, []);
+  const session = useSession();
 
   const user = useQuery(api.users.getUserByUsername as any, session?.username ? { username: session.username } : "skip");
   const skills = useQuery(api.skills.getSkillsByUser as any, user ? { userId: user._id } : "skip");

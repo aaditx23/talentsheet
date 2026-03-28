@@ -1,13 +1,11 @@
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
 
-// NOTE: Next.js Middleware runs on the Edge runtime.
-// Edge does NOT support Node.js crypto APIs (used by jsonwebtoken/bcryptjs).
-// We intentionally only check for cookie presence here as a fast gate.
-// Cryptographic JWT verification (jsonwebtoken.verify) happens inside
-// Server Actions (getSession) which run in the full Node.js runtime.
+// Next.js 16+ proxy convention (replaces middleware.ts)
+// Only checks cookie presence — full JWT verification happens in Server Actions (Node.js runtime)
+// since Edge runtime does not support Node.js crypto modules.
 
-export function middleware(request: NextRequest) {
+export default function proxy(request: NextRequest) {
   const isProtectedRoute = request.nextUrl.pathname.startsWith('/dashboard');
   const sessionToken = request.cookies.get('portfolio_session')?.value;
 

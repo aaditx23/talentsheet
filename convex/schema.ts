@@ -29,6 +29,7 @@ export default defineSchema({
     category: v.string(), 
     description: v.string(), 
     githubUrl: v.string(), 
+    screenshotsPath: v.optional(v.string()),
     liveLink: v.optional(v.string()),
     order: v.number(),
   }).index("by_userId", ["userId"]),

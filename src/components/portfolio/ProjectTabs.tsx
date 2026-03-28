@@ -2,77 +2,84 @@
 
 import { useQuery } from "convex/react";
 import { api } from "../../../convex/_generated/api";
-import { ProjectEntity } from "@/core/entities/project.entity";
-import { PortfolioUseCase } from "@/core/usecases/portfolio.usecases";
+import dynamic from "next/dynamic";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import ReactMarkdown from "react-markdown";
+
+const GitHubMediaCarousel = dynamic(() => import("./GitHubMediaCarousel"), { ssr: false });
+
+interface Project {
+  _id: string;
+  title: string;
+  category: string;
+  description: string;
+  githubUrl: string;
+  screenshotsPath?: string;
+  liveLink?: string;
+}
 
 export default function ProjectTabs({ userId }: { userId: string }) {
-  // Use 'any' type cast here until Convex finishes regenerating its types
   const projectsData = useQuery(api.projects.getProjectsByUser as any, { userId: userId as any });
 
-  if (projectsData === undefined) return <div>Loading projects...</div>;
+  if (projectsData === undefined) return <div className="text-muted-foreground text-sm py-4">Loading projects...</div>;
+  if (!projectsData || projectsData.length === 0) return <div className="text-muted-foreground text-sm py-4">No projects found.</div>;
 
-  const projects: ProjectEntity[] = projectsData.map((p: any) => 
-      PortfolioUseCase.mapConvexProjectToEntity(p)
-  );
-
-  // Group by category
+  const projects: Project[] = projectsData as any;
   const categories = Array.from(new Set(projects.map((p) => p.category)));
-
-  if (projects.length === 0) return <div>No projects found.</div>;
 
   return (
     <Tabs defaultValue={categories[0]} className="w-full">
-      <TabsList className="mb-4">
+      <TabsList className="mb-6 flex-wrap h-auto gap-1 overflow-x-auto">
         {categories.map((cat) => (
-          <TabsTrigger key={cat} value={cat}>
-            {cat}
-          </TabsTrigger>
+          <TabsTrigger key={cat} value={cat}>{cat}</TabsTrigger>
         ))}
       </TabsList>
-      
+
       {categories.map((cat) => (
         <TabsContent key={cat} value={cat}>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          {/* VERTICAL layout — one project per row */}
+          <div className="flex flex-col gap-8">
             {projects
               .filter((p) => p.category === cat)
               .map((project) => (
-                <Card key={project.id} className="overflow-hidden">
-                  {project.screenshotsUrlBase && (
-                    <div className="aspect-video w-full bg-slate-100 flex items-center justify-center overflow-hidden">
-                       {/* Hardcoding 1.jpg or 1.png for demo purposes. Based on github convention */}
-                       <img 
-                          src={`${project.screenshotsUrlBase}1.jpg`} 
-                          alt={project.title}
-                          className="object-cover w-full h-full"
-                          onError={(e) => {
-                             // Fallback to png if jpg fails
-                             (e.target as HTMLImageElement).src = `${project.screenshotsUrlBase}1.png`;
-                          }}
-                       />
+                <Card key={project._id} className="overflow-hidden border shadow-sm">
+                  {/* GitHub Media Carousel — only rendered if there's a screenshots path */}
+                  {project.githubUrl && project.screenshotsPath && (
+                    <div className="px-4 pt-4">
+                      <GitHubMediaCarousel
+                        githubUrl={project.githubUrl}
+                        screenshotsPath={project.screenshotsPath}
+                      />
                     </div>
                   )}
-                  <CardHeader>
-                    <CardTitle>{project.title}</CardTitle>
-                    <CardDescription>{project.category}</CardDescription>
+
+                  <CardHeader className="pb-2">
+                    <div className="flex items-start justify-between gap-3 flex-wrap">
+                      <div>
+                        <CardTitle className="text-xl">{project.title}</CardTitle>
+                        <CardDescription className="mt-1">{project.category}</CardDescription>
+                      </div>
+                      <div className="flex gap-2 flex-wrap">
+                        {project.githubUrl && (
+                          <a href={project.githubUrl} target="_blank" rel="noreferrer">
+                            <Badge variant="outline" className="cursor-pointer hover:bg-muted">GitHub ↗</Badge>
+                          </a>
+                        )}
+                        {project.liveLink && (
+                          <a href={project.liveLink} target="_blank" rel="noreferrer">
+                            <Badge className="cursor-pointer">Live Site ↗</Badge>
+                          </a>
+                        )}
+                      </div>
+                    </div>
                   </CardHeader>
+
                   <CardContent>
-                    <ul className="list-disc pl-5 space-y-1 mb-4">
-                        {project.bulletPoints?.map((bp, i) => (
-                            <li key={i} className="text-sm text-foreground/80">{bp}</li>
-                        ))}
-                    </ul>
-                    <div className="flex gap-2">
-                      <a href={project.githubUrl} target="_blank" className="text-sm text-blue-500 hover:underline">
-                        GitHub
-                      </a>
-                      {project.liveLink && (
-                        <a href={project.liveLink} target="_blank" className="text-sm text-blue-500 hover:underline">
-                          Live Site
-                        </a>
-                      )}
+                    {/* Render markdown description */}
+                    <div className="prose prose-sm dark:prose-invert max-w-none text-foreground/80">
+                      <ReactMarkdown>{project.description}</ReactMarkdown>
                     </div>
                   </CardContent>
                 </Card>
