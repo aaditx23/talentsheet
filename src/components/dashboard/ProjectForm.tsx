@@ -9,6 +9,7 @@ import "@uiw/react-md-editor/markdown-editor.css";
 import "@uiw/react-markdown-preview/markdown.css";
 
 const MDEditor = dynamic(() => import("@uiw/react-md-editor"), { ssr: false });
+import { commands } from "@uiw/react-md-editor";
 
 /** If the user pastes a full tree URL as screenshotsPath, extract just the folder portion */
 function extractFolderPath(input: string): string {
@@ -79,8 +80,8 @@ export function ProjectForm({ userId, initialValues, submitLabel = "Save Project
         </div>
       </div>
       <div>
-        <label className="text-sm font-medium mb-1 block">GitHub Repository URL</label>
-        <Input placeholder="https://github.com/username/repo" value={githubUrl} onChange={(e) => handleGithubUrlChange(e.target.value)} />
+        <label className="text-sm font-medium mb-1 block">Repository URL</label>
+        <Input placeholder="https://github.com/username/repo  or  https://gitlab.com/username/repo" value={githubUrl} onChange={(e) => handleGithubUrlChange(e.target.value)} />
       </div>
       <div>
         <label className="text-sm font-medium mb-1 block">
@@ -99,7 +100,19 @@ export function ProjectForm({ userId, initialValues, submitLabel = "Save Project
           <span className="text-muted-foreground font-normal text-xs">(Markdown — bullets become PDF bullet points)</span>
         </label>
         <div data-color-mode="auto">
-          <MDEditor value={description} onChange={(val) => setDescription(val ?? "")} height={260} preview="live" />
+          <MDEditor
+            value={description}
+            onChange={(val) => setDescription(val ?? "")}
+            height={260}
+            preview="live"
+            commands={[
+              commands.bold,
+              commands.italic,
+              commands.unorderedListCommand,
+              commands.orderedListCommand,
+              
+            ]}
+          />
         </div>
       </div>
       <Button onClick={handleSubmit} disabled={saving || !title.trim() || !category.trim()}>
