@@ -61,6 +61,7 @@ export default defineSchema({
     userId: v.id("users"),
     name: v.string(),
     proficiency: v.optional(v.number()), // 1-10
+    order: v.optional(v.number()),
   }).index("by_userId", ["userId"]),
   
   projects: defineTable({
