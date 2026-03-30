@@ -122,7 +122,10 @@ export default function PortfolioPage() {
             />
 
             <Dialog open={skillsDialogOpen} onOpenChange={setSkillsDialogOpen}>
-              <DialogContent className="w-[96vw] max-w-6xl max-h-[88vh]">
+              <DialogContent
+                style={portfolioStyle}
+                className="w-[96vw] max-h-[88vh] sm:max-w-3xl md:max-w-5xl lg:max-w-6xl"
+              >
                 <DialogHeader>
                   <DialogTitle>All Skills</DialogTitle>
                 </DialogHeader>
