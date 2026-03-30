@@ -60,9 +60,7 @@ export function SkillForm({ userId, onAdd }: SkillFormProps) {
               onChange={(e) => setProficiency(Number(e.target.value))}
             >
               {PROFICIENCY_OPTIONS.map((n) => (
-                <option key={n} value={n}>
-                  {n} — {n <= 3 ? "Beginner" : n <= 6 ? "Intermediate" : n <= 8 ? "Proficient" : n === 9 ? "Advanced" : "Expert"}
-                </option>
+                <option key={n} value={n}>{n}</option>
               ))}
             </select>
           </div>

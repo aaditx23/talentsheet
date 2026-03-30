@@ -2,20 +2,25 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { logoutUser } from "@/app/actions/auth.actions";
 import { useSession } from "@/context/SessionContext";
+import { ThemeToggle } from "@/components/theme/ThemeToggle";
 
 const NAV_LINKS = [
   { href: "/dashboard/profile", label: "Profile Settings" },
   { href: "/dashboard/projects", label: "Manage Projects" },
   { href: "/dashboard/skills", label: "Manage Skills" },
+  { href: "/dashboard/customization", label: "Customization" },
 ];
 
 export function MobileNav() {
   const session = useSession();
+  const pathname = usePathname();
   const [open, setOpen] = useState(false);
   const publicUrl = session?.username ? `/${session.username}` : "/";
+  const isActive = (href: string) => pathname === href || pathname.startsWith(`${href}/`);
 
   return (
     <>
@@ -62,7 +67,12 @@ export function MobileNav() {
         <nav className="flex flex-col gap-2">
           {NAV_LINKS.map(({ href, label }) => (
             <Link key={href} href={href} onClick={() => setOpen(false)}>
-              <Button variant="ghost" className="w-full justify-start">{label}</Button>
+              <Button
+                variant={isActive(href) ? "secondary" : "ghost"}
+                className="w-full justify-start"
+              >
+                {label}
+              </Button>
             </Link>
           ))}
           <Link href={publicUrl} target="_blank" onClick={() => setOpen(false)}>
@@ -70,7 +80,8 @@ export function MobileNav() {
           </Link>
         </nav>
 
-        <div className="mt-auto">
+        <div className="mt-auto space-y-3">
+          <ThemeToggle />
           <form action={logoutUser}>
             <Button type="submit" variant="destructive" className="w-full">Logout</Button>
           </form>

@@ -5,6 +5,7 @@ import { useMutation } from "convex/react";
 import { api } from "../../../convex/_generated/api";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 
 interface User {
@@ -79,7 +80,8 @@ export function ProfileForm({ user }: ProfileFormProps) {
         </div>
         <div>
           <label className="text-sm font-medium mb-1 block">About</label>
-          <Input
+          <Textarea
+            rows={5}
             placeholder="A short bio about you..."
             value={about}
             onChange={(e) => setAbout(e.target.value)}

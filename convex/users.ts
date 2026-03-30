@@ -53,15 +53,65 @@ export const updateThemeSettings = mutation({
   args: {
     userId: v.id("users"),
     themeSettings: v.object({
-      primary: v.string(),
-      secondary: v.string(),
       background: v.string(),
-      textMain: v.string(),
+      foreground: v.string(),
+      primary: v.string(),
+      primaryForeground: v.string(),
+      secondary: v.string(),
+      secondaryForeground: v.string(),
+      muted: v.string(),
+      mutedForeground: v.string(),
       accent: v.string(),
+      accentForeground: v.string(),
+      card: v.string(),
+      cardForeground: v.string(),
+      popover: v.string(),
+      popoverForeground: v.string(),
+      border: v.string(),
+      input: v.string(),
+      ring: v.string(),
     }),
   },
   handler: async (ctx, args) => {
     await ctx.db.patch(args.userId, { themeSettings: args.themeSettings });
+  },
+});
+
+export const upsertThemePreset = mutation({
+  args: {
+    userId: v.id("users"),
+    preset: v.object({
+      name: v.string(),
+      background: v.string(),
+      foreground: v.string(),
+      primary: v.string(),
+      primaryForeground: v.string(),
+      secondary: v.string(),
+      secondaryForeground: v.string(),
+      muted: v.string(),
+      mutedForeground: v.string(),
+      accent: v.string(),
+      accentForeground: v.string(),
+      card: v.string(),
+      cardForeground: v.string(),
+      popover: v.string(),
+      popoverForeground: v.string(),
+      border: v.string(),
+      input: v.string(),
+      ring: v.string(),
+    }),
+  },
+  handler: async (ctx, args) => {
+    const user = await ctx.db.get(args.userId);
+    if (!user) throw new Error("User not found");
+
+    const existing = user.themePresets ?? [];
+    const normalizedName = args.preset.name.trim().toLowerCase();
+    const withoutSameName = existing.filter((item) => item.name.trim().toLowerCase() !== normalizedName);
+
+    await ctx.db.patch(args.userId, {
+      themePresets: [...withoutSameName, args.preset],
+    });
   },
 });
 

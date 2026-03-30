@@ -1,9 +1,25 @@
 export interface ThemeSettings {
-    primary: string;
-    secondary: string;
     background: string;
-    textMain: string;
+    foreground: string;
+    primary: string;
+    primaryForeground: string;
+    secondary: string;
+    secondaryForeground: string;
+    muted: string;
+    mutedForeground: string;
     accent: string;
+    accentForeground: string;
+    card: string;
+    cardForeground: string;
+    popover: string;
+    popoverForeground: string;
+    border: string;
+    input: string;
+    ring: string;
+}
+
+export interface ThemePreset extends ThemeSettings {
+    name: string;
 }
 
 export interface UserEntity {
@@ -13,4 +29,5 @@ export interface UserEntity {
     tagline: string;
     about: string;
     themeSettings?: ThemeSettings;
+    themePresets?: ThemePreset[];
 }

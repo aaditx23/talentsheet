@@ -5,6 +5,7 @@ import dynamic from "next/dynamic";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { useTheme } from "@/theme/ThemeProvider";
 import "@uiw/react-md-editor/markdown-editor.css";
 import "@uiw/react-markdown-preview/markdown.css";
 
@@ -41,6 +42,7 @@ interface ProjectFormProps {
 }
 
 export function ProjectForm({ userId, initialValues, submitLabel = "Save Project", onSubmit }: ProjectFormProps) {
+  const { mode } = useTheme();
   const [title, setTitle] = useState(initialValues?.title ?? "");
   const [category, setCategory] = useState(initialValues?.category ?? "");
   const [githubUrl, setGithubUrl] = useState(initialValues?.githubUrl ?? "");
@@ -81,7 +83,7 @@ export function ProjectForm({ userId, initialValues, submitLabel = "Save Project
       </div>
       <div>
         <label className="text-sm font-medium mb-1 block">Repository URL</label>
-        <Input placeholder="https://github.com/username/repo  or  https://gitlab.com/username/repo" value={githubUrl} onChange={(e) => handleGithubUrlChange(e.target.value)} />
+        <Input placeholder="GitHub or GitLab" value={githubUrl} onChange={(e) => handleGithubUrlChange(e.target.value)} />
       </div>
       <div>
         <label className="text-sm font-medium mb-1 block">
@@ -99,7 +101,7 @@ export function ProjectForm({ userId, initialValues, submitLabel = "Save Project
           Description{" "}
           <span className="text-muted-foreground font-normal text-xs">(Markdown — bullets become PDF bullet points)</span>
         </label>
-        <div data-color-mode="auto">
+        <div data-color-mode={mode}>
           <MDEditor
             value={description}
             onChange={(val) => setDescription(val ?? "")}
