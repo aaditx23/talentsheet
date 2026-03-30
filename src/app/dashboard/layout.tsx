@@ -53,6 +53,46 @@ function DashboardNav() {
             Manage Skills
           </Button>
         </Link>
+        <Link href="/dashboard/experience">
+          <Button
+            variant={isActive("/dashboard/experience") ? "secondary" : "ghost"}
+            className="w-full justify-start"
+          >
+            Experience
+          </Button>
+        </Link>
+        <Link href="/dashboard/education">
+          <Button
+            variant={isActive("/dashboard/education") ? "secondary" : "ghost"}
+            className="w-full justify-start"
+          >
+            Education
+          </Button>
+        </Link>
+        <Link href="/dashboard/achievements">
+          <Button
+            variant={isActive("/dashboard/achievements") ? "secondary" : "ghost"}
+            className="w-full justify-start"
+          >
+            Achievements
+          </Button>
+        </Link>
+        <Link href="/dashboard/certifications">
+          <Button
+            variant={isActive("/dashboard/certifications") ? "secondary" : "ghost"}
+            className="w-full justify-start"
+          >
+            Certifications
+          </Button>
+        </Link>
+        <Link href="/dashboard/extracurricular">
+          <Button
+            variant={isActive("/dashboard/extracurricular") ? "secondary" : "ghost"}
+            className="w-full justify-start"
+          >
+            Co-curricular
+          </Button>
+        </Link>
         <Link href="/dashboard/customization">
           <Button
             variant={isActive("/dashboard/customization") ? "secondary" : "ghost"}

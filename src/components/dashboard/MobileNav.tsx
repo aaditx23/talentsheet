@@ -12,6 +12,11 @@ const NAV_LINKS = [
   { href: "/dashboard/profile", label: "Profile Settings" },
   { href: "/dashboard/projects", label: "Manage Projects" },
   { href: "/dashboard/skills", label: "Manage Skills" },
+  { href: "/dashboard/experience", label: "Experience" },
+  { href: "/dashboard/education", label: "Education" },
+  { href: "/dashboard/achievements", label: "Achievements" },
+  { href: "/dashboard/certifications", label: "Certifications" },
+  { href: "/dashboard/extracurricular", label: "Co-curricular" },
   { href: "/dashboard/customization", label: "Customization" },
 ];
 

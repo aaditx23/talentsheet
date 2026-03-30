@@ -85,7 +85,17 @@ export default function PortfolioPage() {
   // The 'any' cast acts as a stopgap until convex generates definitions
   const user = useQuery(api.users.getUserByUsername as any, { username });
   const skills = useQuery(api.skills.getSkillsByUser as any, user ? { userId: user._id } : "skip");
+  const experiences = useQuery((api as any).sections.getExperiencesByUser, user ? { userId: user._id } : "skip");
+  const educationEntries = useQuery((api as any).sections.getEducationEntriesByUser, user ? { userId: user._id } : "skip");
+  const achievements = useQuery((api as any).sections.getAchievementsByUser, user ? { userId: user._id } : "skip");
+  const certifications = useQuery((api as any).sections.getCertificationsByUser, user ? { userId: user._id } : "skip");
+  const extracurriculars = useQuery((api as any).sections.getExtracurricularsByUser, user ? { userId: user._id } : "skip");
   const allSkills = (skills as any[]) ?? [];
+  const allExperiences = (experiences as any[]) ?? [];
+  const allEducationEntries = (educationEntries as any[]) ?? [];
+  const allAchievements = (achievements as any[]) ?? [];
+  const allCertifications = (certifications as any[]) ?? [];
+  const allExtracurriculars = (extracurriculars as any[]) ?? [];
   const topSkills = allSkills.slice(0, 5);
   const hasMoreSkills = allSkills.length > 5;
   const portfolioStyle = toPortfolioStyle((user as any)?.themeSettings);
@@ -138,6 +148,97 @@ export default function PortfolioPage() {
                 </div>
               </DialogContent>
             </Dialog>
+          </section>
+        )}
+
+        {/* Experience */}
+        {allExperiences.length > 0 && (
+          <section className="space-y-4">
+            <h2 className="text-3xl font-semibold tracking-tight border-b pb-2 text-foreground">Experience</h2>
+            <div className="space-y-3">
+              {allExperiences.map((item: any) => (
+                <Card key={item._id} className="p-4">
+                  <p className="font-semibold text-lg">{item.role} @ {item.company}</p>
+                  <p className="text-sm text-muted-foreground">{item.duration}{item.location ? ` • ${item.location}` : ""}</p>
+                  {item.description ? <p className="mt-2 whitespace-pre-line">{item.description}</p> : null}
+                </Card>
+              ))}
+            </div>
+          </section>
+        )}
+
+        {/* Education */}
+        {allEducationEntries.length > 0 && (
+          <section className="space-y-4">
+            <h2 className="text-3xl font-semibold tracking-tight border-b pb-2 text-foreground">Education</h2>
+            <div className="space-y-3">
+              {allEducationEntries.map((item: any) => (
+                <Card key={item._id} className="p-4">
+                  <p className="font-semibold text-lg">{item.degree}</p>
+                  <p>{item.institution}</p>
+                  <p className="text-sm text-muted-foreground">{item.duration}{item.location ? ` • ${item.location}` : ""}</p>
+                </Card>
+              ))}
+            </div>
+          </section>
+        )}
+
+        {/* Achievements */}
+        {allAchievements.length > 0 && (
+          <section className="space-y-4">
+            <h2 className="text-3xl font-semibold tracking-tight border-b pb-2 text-foreground">Achievements</h2>
+            <div className="space-y-3">
+              {allAchievements.map((item: any) => (
+                <Card key={item._id} className="p-4">
+                  <p className="font-semibold text-lg">{item.title}</p>
+                  <p className="text-sm text-muted-foreground">
+                    {item.issuer || ""}
+                    {item.date ? `${item.issuer ? " • " : ""}${item.date}` : ""}
+                  </p>
+                  {item.description ? <p className="mt-2">{item.description}</p> : null}
+                </Card>
+              ))}
+            </div>
+          </section>
+        )}
+
+        {/* Certifications */}
+        {allCertifications.length > 0 && (
+          <section className="space-y-4">
+            <h2 className="text-3xl font-semibold tracking-tight border-b pb-2 text-foreground">Certifications</h2>
+            <div className="space-y-3">
+              {allCertifications.map((item: any) => (
+                <Card key={item._id} className="p-4">
+                  <p className="font-semibold text-lg">{item.name}</p>
+                  <p className="text-sm text-muted-foreground">
+                    {item.issuer || ""}
+                    {item.issueDate ? `${item.issuer ? " • " : ""}${item.issueDate}` : ""}
+                  </p>
+                  {item.credentialUrl ? (
+                    <a href={item.credentialUrl} target="_blank" rel="noreferrer" className="text-sm underline mt-1 inline-block">
+                      View Credential
+                    </a>
+                  ) : null}
+                </Card>
+              ))}
+            </div>
+          </section>
+        )}
+
+        {/* Co-curricular */}
+        {allExtracurriculars.length > 0 && (
+          <section className="space-y-4">
+            <h2 className="text-3xl font-semibold tracking-tight border-b pb-2 text-foreground">Co-curricular</h2>
+            <div className="space-y-3">
+              {allExtracurriculars.map((item: any) => (
+                <Card key={item._id} className="p-4">
+                  <p className="font-semibold text-lg">{item.role}</p>
+                  <p>{item.organization}</p>
+                  <p className="text-sm text-muted-foreground">{item.duration}</p>
+                  {item.description ? <p className="mt-2 whitespace-pre-line">{item.description}</p> : null}
+                </Card>
+              ))}
+            </div>
           </section>
         )}
 

@@ -98,4 +98,50 @@ export default defineSchema({
     })),
     selectedProjectIds: v.array(v.id("projects")),
   }).index("by_userId", ["userId"]),
+
+  experiences: defineTable({
+    userId: v.id("users"),
+    company: v.string(),
+    role: v.string(),
+    duration: v.string(),
+    location: v.optional(v.string()),
+    description: v.optional(v.string()),
+    order: v.number(),
+  }).index("by_userId", ["userId"]),
+
+  educationEntries: defineTable({
+    userId: v.id("users"),
+    institution: v.string(),
+    degree: v.string(),
+    duration: v.string(),
+    location: v.optional(v.string()),
+    order: v.number(),
+  }).index("by_userId", ["userId"]),
+
+  achievements: defineTable({
+    userId: v.id("users"),
+    title: v.string(),
+    issuer: v.optional(v.string()),
+    date: v.optional(v.string()),
+    description: v.optional(v.string()),
+    order: v.number(),
+  }).index("by_userId", ["userId"]),
+
+  certifications: defineTable({
+    userId: v.id("users"),
+    name: v.string(),
+    issuer: v.optional(v.string()),
+    issueDate: v.optional(v.string()),
+    credentialUrl: v.optional(v.string()),
+    order: v.number(),
+  }).index("by_userId", ["userId"]),
+
+  extracurriculars: defineTable({
+    userId: v.id("users"),
+    organization: v.string(),
+    role: v.string(),
+    duration: v.string(),
+    description: v.optional(v.string()),
+    order: v.number(),
+  }).index("by_userId", ["userId"]),
 });
