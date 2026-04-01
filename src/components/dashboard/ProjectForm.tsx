@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import dynamic from "next/dynamic";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { SuggestionInput } from "@/components/ui/suggestion-input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useTheme } from "@/theme/ThemeProvider";
 import "@uiw/react-md-editor/markdown-editor.css";
@@ -37,17 +38,24 @@ interface ProjectFormProps {
   userId: string;
   /** Pre-fill for edit mode */
   initialValues?: Partial<ProjectFormData>;
+  categorySuggestions?: string[];
   submitLabel?: string;
   onSubmit: (data: ProjectFormData) => Promise<void>;
 }
 
-export function ProjectForm({ userId, initialValues, submitLabel = "Save Project", onSubmit }: ProjectFormProps) {
+export function ProjectForm({
+  userId,
+  initialValues,
+  categorySuggestions = [],
+  submitLabel = "Save Project",
+  onSubmit,
+}: ProjectFormProps) {
   const { mode } = useTheme();
   const [title, setTitle] = useState(initialValues?.title ?? "");
   const [category, setCategory] = useState(initialValues?.category ?? "");
   const [githubUrl, setGithubUrl] = useState(initialValues?.githubUrl ?? "");
   const [screenshotsPath, setScreenshotsPath] = useState(initialValues?.screenshotsPath ?? "");
-  const [description, setDescription] = useState(initialValues?.description ?? "## Overview\n\n- \n\n## Key Features\n\n- \n");
+  const [description, setDescription] = useState(initialValues?.description ?? "");
   const [liveLink, setLiveLink] = useState(initialValues?.liveLink ?? "");
   const [saving, setSaving] = useState(false);
 
@@ -59,12 +67,24 @@ export function ProjectForm({ userId, initialValues, submitLabel = "Save Project
     }
   };
 
+  const clearAll = () => {
+    setTitle("")
+    setCategory("")
+    setGithubUrl("")
+    setScreenshotsPath("")
+    setDescription("")
+    setLiveLink("")
+
+
+  }
   const handleSubmit = async () => {
     if (!title.trim() || !category.trim()) return;
     setSaving(true);
     try {
       await onSubmit({ userId, title, category, githubUrl, screenshotsPath, description: description ?? "", liveLink });
+      clearAll()
     } finally {
+      
       setSaving(false);
     }
   };
@@ -78,7 +98,13 @@ export function ProjectForm({ userId, initialValues, submitLabel = "Save Project
         </div>
         <div>
           <label className="text-sm font-medium mb-1 block">Category</label>
-          <Input placeholder="e.g. Android, Backend, Flutter" value={category} onChange={(e) => setCategory(e.target.value)} />
+          <SuggestionInput
+            value={category}
+            placeholder="e.g. Android, Backend, Flutter"
+            suggestions={categorySuggestions}
+            onValueChange={setCategory}
+            buttonAriaLabel="Show category suggestions"
+          />
         </div>
       </div>
       <div>

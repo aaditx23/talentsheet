@@ -1,21 +1,12 @@
-import { NextResponse } from 'next/server';
-import type { NextRequest } from 'next/server';
+import { NextResponse } from "next/server";
 
-// Next.js 16+ proxy convention (replaces middleware.ts)
-// Only checks cookie presence — full JWT verification happens in Server Actions (Node.js runtime)
-// since Edge runtime does not support Node.js crypto modules.
-
-export default function proxy(request: NextRequest) {
-  const isProtectedRoute = request.nextUrl.pathname.startsWith('/dashboard');
-  const sessionToken = request.cookies.get('portfolio_session')?.value;
-
-  if (isProtectedRoute && !sessionToken) {
-    return NextResponse.redirect(new URL('/sign-in', request.url));
-  }
-
+export default function proxy() {
   return NextResponse.next();
 }
 
 export const config = {
-  matcher: ['/dashboard/:path*'],
+  matcher: [
+    "/((?!_next|[^?]*\\.(?:html?|css|js(?!on)|jpe?g|webp|png|gif|svg|ttf|woff2?|ico|csv|docx?|xlsx?|zip|webmanifest)).*)",
+    "/(api|trpc)(.*)",
+  ],
 };

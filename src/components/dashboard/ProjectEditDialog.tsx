@@ -18,11 +18,12 @@ interface Project {
 
 interface ProjectEditDialogProps {
   project: Project;
+  categorySuggestions?: string[];
   open: boolean;
   onClose: () => void;
 }
 
-export function ProjectEditDialog({ project, open, onClose }: ProjectEditDialogProps) {
+export function ProjectEditDialog({ project, categorySuggestions = [], open, onClose }: ProjectEditDialogProps) {
   const updateProject = useMutation(api.projects.updateProject as any);
 
   const handleSubmit = async (data: ProjectFormData) => {
@@ -46,6 +47,7 @@ export function ProjectEditDialog({ project, open, onClose }: ProjectEditDialogP
         </DialogHeader>
         <ProjectForm
           userId={project.userId}
+          categorySuggestions={categorySuggestions}
           initialValues={{
             title: project.title,
             category: project.category,

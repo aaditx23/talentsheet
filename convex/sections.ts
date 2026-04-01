@@ -36,6 +36,9 @@ export const addExperience = mutation({
     company: v.string(),
     role: v.string(),
     duration: v.string(),
+    startDate: v.optional(v.string()),
+    endDate: v.optional(v.string()),
+    isPresent: v.optional(v.boolean()),
     location: v.optional(v.string()),
     description: v.optional(v.string()),
   },
@@ -49,6 +52,24 @@ export const deleteExperience = mutation({
   args: { id: v.id("experiences") },
   handler: async (ctx, args) => {
     await ctx.db.delete(args.id);
+  },
+});
+
+export const updateExperience = mutation({
+  args: {
+    id: v.id("experiences"),
+    company: v.string(),
+    role: v.string(),
+    duration: v.string(),
+    startDate: v.optional(v.string()),
+    endDate: v.optional(v.string()),
+    isPresent: v.optional(v.boolean()),
+    location: v.optional(v.string()),
+    description: v.optional(v.string()),
+  },
+  handler: async (ctx, args) => {
+    const { id, ...updates } = args;
+    await ctx.db.patch(id, updates);
   },
 });
 
@@ -68,8 +89,13 @@ export const addEducationEntry = mutation({
     userId: v.id("users"),
     institution: v.string(),
     degree: v.string(),
+    subject: v.optional(v.string()),
     duration: v.string(),
+    startDate: v.optional(v.string()),
+    endDate: v.optional(v.string()),
+    isPresent: v.optional(v.boolean()),
     location: v.optional(v.string()),
+    description: v.optional(v.string()),
   },
   handler: async (ctx, args) => {
     const order = await nextOrderForTable(ctx, "educationEntries", args.userId);
@@ -81,6 +107,25 @@ export const deleteEducationEntry = mutation({
   args: { id: v.id("educationEntries") },
   handler: async (ctx, args) => {
     await ctx.db.delete(args.id);
+  },
+});
+
+export const updateEducationEntry = mutation({
+  args: {
+    id: v.id("educationEntries"),
+    institution: v.string(),
+    degree: v.string(),
+    subject: v.optional(v.string()),
+    duration: v.string(),
+    startDate: v.optional(v.string()),
+    endDate: v.optional(v.string()),
+    isPresent: v.optional(v.boolean()),
+    location: v.optional(v.string()),
+    description: v.optional(v.string()),
+  },
+  handler: async (ctx, args) => {
+    const { id, ...updates } = args;
+    await ctx.db.patch(id, updates);
   },
 });
 
@@ -134,6 +179,7 @@ export const addCertification = mutation({
     issuer: v.optional(v.string()),
     issueDate: v.optional(v.string()),
     credentialUrl: v.optional(v.string()),
+    description: v.optional(v.string()),
   },
   handler: async (ctx, args) => {
     const order = await nextOrderForTable(ctx, "certifications", args.userId);
@@ -145,6 +191,21 @@ export const deleteCertification = mutation({
   args: { id: v.id("certifications") },
   handler: async (ctx, args) => {
     await ctx.db.delete(args.id);
+  },
+});
+
+export const updateCertification = mutation({
+  args: {
+    id: v.id("certifications"),
+    name: v.string(),
+    issuer: v.optional(v.string()),
+    issueDate: v.optional(v.string()),
+    credentialUrl: v.optional(v.string()),
+    description: v.optional(v.string()),
+  },
+  handler: async (ctx, args) => {
+    const { id, ...updates } = args;
+    await ctx.db.patch(id, updates);
   },
 });
 
@@ -165,6 +226,9 @@ export const addExtracurricular = mutation({
     organization: v.string(),
     role: v.string(),
     duration: v.string(),
+    startDate: v.optional(v.string()),
+    endDate: v.optional(v.string()),
+    isPresent: v.optional(v.boolean()),
     description: v.optional(v.string()),
   },
   handler: async (ctx, args) => {
@@ -177,5 +241,22 @@ export const deleteExtracurricular = mutation({
   args: { id: v.id("extracurriculars") },
   handler: async (ctx, args) => {
     await ctx.db.delete(args.id);
+  },
+});
+
+export const updateExtracurricular = mutation({
+  args: {
+    id: v.id("extracurriculars"),
+    organization: v.string(),
+    role: v.string(),
+    duration: v.string(),
+    startDate: v.optional(v.string()),
+    endDate: v.optional(v.string()),
+    isPresent: v.optional(v.boolean()),
+    description: v.optional(v.string()),
+  },
+  handler: async (ctx, args) => {
+    const { id, ...updates } = args;
+    await ctx.db.patch(id, updates);
   },
 });

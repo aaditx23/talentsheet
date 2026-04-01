@@ -39,8 +39,8 @@ export function SkillForm({ userId, onAdd }: SkillFormProps) {
         <CardTitle>Add New Skill</CardTitle>
       </CardHeader>
       <CardContent className="grid gap-4">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 items-end">
-          <div className="col-span-2">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 items-end">
+          <div className="md:col-span-2">
             <label className="text-sm font-medium mb-1 block">Skill Name</label>
             <Input
               placeholder="e.g. Kotlin, Flutter, NestJS..."

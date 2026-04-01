@@ -9,6 +9,7 @@ import { PageHeader } from "@/components/dashboard/PageHeader";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
+import { MonthYearInput } from "@/components/ui/month-year-input";
 
 export default function AchievementsPage() {
   const session = useSession();
@@ -24,6 +25,7 @@ export default function AchievementsPage() {
   const [saving, setSaving] = useState(false);
 
   if (!session) return <LoadingState message="Authenticating..." />;
+  if (user === null) return <LoadingState message="User not found." />;
   if (user === undefined || achievements === undefined) return <LoadingState message="Loading achievements..." />;
 
   const handleAdd = async () => {
@@ -53,7 +55,7 @@ export default function AchievementsPage() {
       <Card className="p-4 space-y-3">
         <Input placeholder="Title" value={title} onChange={(e) => setTitle(e.target.value)} />
         <Input placeholder="Issuer (optional)" value={issuer} onChange={(e) => setIssuer(e.target.value)} />
-        <Input placeholder="Date (optional)" value={date} onChange={(e) => setDate(e.target.value)} />
+        <MonthYearInput value={date} onChange={setDate} ariaLabel="Achievement month and year (optional)" />
         <Input placeholder="Description (optional)" value={description} onChange={(e) => setDescription(e.target.value)} />
         <Button onClick={handleAdd} disabled={saving}>{saving ? "Adding..." : "Add Achievement"}</Button>
       </Card>

@@ -1,15 +1,17 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
+import { useEffect } from "react";
 import { Button } from "@/components/ui/button";
-import { logoutUser } from "@/app/actions/auth.actions";
 import { SessionProvider, useSession } from "@/context/SessionContext";
 import { MobileNav } from "@/components/dashboard/MobileNav";
 import { ThemeToggle } from "@/components/theme/ThemeToggle";
+import { useStackApp } from "@stackframe/stack";
 
 function DashboardNav() {
   const session = useSession();
+  const stackApp = useStackApp();
   const pathname = usePathname();
   const publicUrl = session?.username ? `/${session.username}` : "/";
   const isActive = (href: string) => pathname === href || pathname.startsWith(`${href}/`);
@@ -22,9 +24,17 @@ function DashboardNav() {
         ) : session ? (
           <div className="text-sm font-semibold truncate bg-foreground/10 px-2 py-1 rounded">@{session.username}</div>
         ) : null}
-        <form action={logoutUser}>
-          <Button type="submit" variant="outline" size="sm">Logout</Button>
-        </form>
+        <Button
+          type="button"
+          variant="outline"
+          size="sm"
+          onClick={async () => {
+            await stackApp.signOut();
+            window.location.href = "/sign-in";
+          }}
+        >
+          Logout
+        </Button>
       </div>
 
       <h2 className="font-semibold text-sm tracking-tight mb-2 text-muted-foreground uppercase">Navigation</h2>
@@ -115,6 +125,27 @@ function DashboardNav() {
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
   return (
     <SessionProvider>
+      <DashboardShell>{children}</DashboardShell>
+    </SessionProvider>
+  );
+}
+
+function DashboardShell({ children }: { children: React.ReactNode }) {
+  const session = useSession();
+  const router = useRouter();
+
+  useEffect(() => {
+    if (session === null) {
+      router.replace("/sign-in");
+    }
+  }, [session, router]);
+
+  if (session === null) {
+    return null;
+  }
+
+  return (
+    <>
       {/* Mobile top bar + slide-in drawer */}
       <MobileNav />
       <div className="flex min-h-screen">
@@ -126,6 +157,6 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
           {children}
         </main>
       </div>
-    </SessionProvider>
+    </>
   );
 }

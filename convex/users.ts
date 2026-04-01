@@ -1,6 +1,20 @@
 import { query, mutation } from "./_generated/server";
 import { v } from "convex/values";
 
+export const getUserByStackId = query({
+  args: { stackId: v.string() },
+  handler: async (ctx, args) => {
+    const user = await ctx.db
+      .query("users")
+      .withIndex("by_stackId", (q) => q.eq("stackId", args.stackId))
+      .first();
+
+    if (!user) return null;
+    const { passwordHash, ...safeUser } = user;
+    return safeUser;
+  },
+});
+
 // Public profile fetching - excludes password hash automatically
 export const getUserByUsername = query({
   args: { username: v.string() },
@@ -13,6 +27,22 @@ export const getUserByUsername = query({
     if (!user) return null;
     const { passwordHash, ...safeUser } = user;
     return safeUser;
+  },
+});
+
+export const checkUsernameAvailability = query({
+  args: { username: v.string() },
+  handler: async (ctx, args) => {
+    const normalized = args.username.trim().toLowerCase();
+    const existing = await ctx.db
+      .query("users")
+      .withIndex("by_username", (q) => q.eq("username", normalized))
+      .first();
+
+    return {
+      available: !existing,
+      normalized,
+    };
   },
 });
 
@@ -46,6 +76,51 @@ export const createUser = mutation({
     if (existing) throw new Error("Username already taken.");
 
     return await ctx.db.insert("users", args);
+  },
+});
+
+export const upsertUserFromStack = mutation({
+  args: {
+    stackId: v.string(),
+    username: v.string(),
+    displayName: v.string(),
+  },
+  handler: async (ctx, args) => {
+    const existingByStackId = await ctx.db
+      .query("users")
+      .withIndex("by_stackId", (q) => q.eq("stackId", args.stackId))
+      .first();
+
+    if (existingByStackId) {
+      await ctx.db.patch(existingByStackId._id, {
+        displayName: args.displayName || existingByStackId.displayName,
+      });
+      return existingByStackId._id;
+    }
+
+    const baseUsername = args.username.trim().toLowerCase().replace(/[^a-z0-9_]/g, "_").replace(/_+/g, "_") || "user";
+    let candidate = baseUsername;
+    let suffix = 1;
+
+    while (true) {
+      const conflict = await ctx.db
+        .query("users")
+        .withIndex("by_username", (q) => q.eq("username", candidate))
+        .first();
+
+      if (!conflict) break;
+      suffix += 1;
+      candidate = `${baseUsername}_${suffix}`;
+    }
+
+    return await ctx.db.insert("users", {
+      stackId: args.stackId,
+      username: candidate,
+      displayName: args.displayName,
+      tagline: "Software Engineer",
+      about: "Write a short introduction about yourself.",
+      passwordHash: "",
+    });
   },
 });
 
@@ -115,15 +190,52 @@ export const upsertThemePreset = mutation({
   },
 });
 
+export const updateSectionLayout = mutation({
+  args: {
+    userId: v.id("users"),
+    sectionOrder: v.array(v.string()),
+    hiddenSections: v.array(v.string()),
+  },
+  handler: async (ctx, args) => {
+    await ctx.db.patch(args.userId, {
+      sectionLayout: {
+        sectionOrder: args.sectionOrder,
+        hiddenSections: args.hiddenSections,
+      },
+    });
+  },
+});
+
 export const updateUser = mutation({
   args: {
     userId: v.id("users"),
+    username: v.optional(v.string()),
     displayName: v.optional(v.string()),
     tagline: v.optional(v.string()),
     about: v.optional(v.string()),
   },
   handler: async (ctx, args) => {
-    const { userId, ...updates } = args;
-    await ctx.db.patch(userId, updates);
+    const { userId, username, ...updates } = args;
+    const patch: any = { ...updates };
+
+    if (username !== undefined) {
+      const normalized = username.trim().toLowerCase();
+      const current = await ctx.db.get(userId);
+      if (!current) throw new Error("User not found");
+
+      if (normalized !== current.username) {
+        const conflict = await ctx.db
+          .query("users")
+          .withIndex("by_username", (q) => q.eq("username", normalized))
+          .first();
+        if (conflict) {
+          throw new Error("Username is already taken");
+        }
+      }
+
+      patch.username = normalized;
+    }
+
+    await ctx.db.patch(userId, patch);
   },
 });

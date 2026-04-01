@@ -4,9 +4,9 @@ import { useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Button } from "@/components/ui/button";
-import { logoutUser } from "@/app/actions/auth.actions";
 import { useSession } from "@/context/SessionContext";
 import { ThemeToggle } from "@/components/theme/ThemeToggle";
+import { useStackApp } from "@stackframe/stack";
 
 const NAV_LINKS = [
   { href: "/dashboard/profile", label: "Profile Settings" },
@@ -22,6 +22,7 @@ const NAV_LINKS = [
 
 export function MobileNav() {
   const session = useSession();
+  const stackApp = useStackApp();
   const pathname = usePathname();
   const [open, setOpen] = useState(false);
   const publicUrl = session?.username ? `/${session.username}` : "/";
@@ -87,9 +88,17 @@ export function MobileNav() {
 
         <div className="mt-auto space-y-3">
           <ThemeToggle />
-          <form action={logoutUser}>
-            <Button type="submit" variant="destructive" className="w-full">Logout</Button>
-          </form>
+          <Button
+            type="button"
+            variant="destructive"
+            className="w-full"
+            onClick={async () => {
+              await stackApp.signOut();
+              window.location.href = "/sign-in";
+            }}
+          >
+            Logout
+          </Button>
         </div>
       </aside>
     </>

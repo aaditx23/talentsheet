@@ -13,6 +13,27 @@ export const getProjectsByUser = query({
   },
 });
 
+export const getCategoriesByUser = query({
+  args: { userId: v.id("users") },
+  handler: async (ctx, args) => {
+    const projects = await ctx.db
+      .query("projects")
+      .withIndex("by_userId", (q) => q.eq("userId", args.userId))
+      .collect();
+
+    const categories = Array.from(
+      new Set(
+        projects
+          .map((project) => project.category.trim())
+          .filter((category) => category.length > 0),
+      ),
+    );
+
+    categories.sort((a, b) => a.localeCompare(b));
+    return categories;
+  },
+});
+
 export const addProject = mutation({
   args: {
     userId: v.id("users"),

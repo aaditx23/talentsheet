@@ -5,6 +5,8 @@ import ConvexClientProvider from "@/components/ConvexClientProvider";
 import { ThemeProvider } from "@/theme/ThemeProvider";
 import { ThemeScript } from "@/theme/ThemeScript";
 import { themeStyles } from "@/theme/style";
+import { StackProvider } from "@stackframe/stack";
+import { stackServerApp } from "@/stack/server";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -36,10 +38,12 @@ export default function RootLayout({
         <style id="theme-colors" dangerouslySetInnerHTML={{ __html: themeStyles }} />
       </head>
       <body className="min-h-full flex flex-col">
-        <ThemeScript />
-        <ThemeProvider>
-          <ConvexClientProvider>{children}</ConvexClientProvider>
-        </ThemeProvider>
+        <StackProvider app={stackServerApp}>
+          <ThemeScript />
+          <ThemeProvider>
+            <ConvexClientProvider>{children}</ConvexClientProvider>
+          </ThemeProvider>
+        </StackProvider>
       </body>
     </html>
   );

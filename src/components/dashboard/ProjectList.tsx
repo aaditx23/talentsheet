@@ -19,10 +19,11 @@ interface Project {
 
 interface ProjectListProps {
   projects: Project[];
+  categorySuggestions?: string[];
   onDelete: (id: string) => void;
 }
 
-export function ProjectList({ projects, onDelete }: ProjectListProps) {
+export function ProjectList({ projects, categorySuggestions = [], onDelete }: ProjectListProps) {
   const [editingProject, setEditingProject] = useState<Project | null>(null);
 
   if (projects.length === 0) {
@@ -64,6 +65,7 @@ export function ProjectList({ projects, onDelete }: ProjectListProps) {
       {editingProject && (
         <ProjectEditDialog
           project={editingProject}
+          categorySuggestions={categorySuggestions}
           open={!!editingProject}
           onClose={() => setEditingProject(null)}
         />

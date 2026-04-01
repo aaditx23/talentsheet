@@ -57,6 +57,7 @@ export default function SkillsPage() {
   };
 
   if (!session) return <LoadingState message="Authenticating..." />;
+  if (user === null) return <LoadingState message="User not found." />;
   if (user === undefined || skills === undefined) return <LoadingState message="Loading skills..." />;
 
   return (

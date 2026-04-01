@@ -3,6 +3,7 @@ import { v } from "convex/values";
 
 export default defineSchema({
   users: defineTable({
+    stackId: v.optional(v.string()),
     username: v.string(), // SLUG for routing e.g., 'user01'
     displayName: v.string(),
     tagline: v.string(),
@@ -55,7 +56,11 @@ export default defineSchema({
       textMain: v.optional(v.string()),
       textMuted: v.optional(v.string()),
     }))),
-  }).index("by_username", ["username"]),
+    sectionLayout: v.optional(v.object({
+      sectionOrder: v.array(v.string()),
+      hiddenSections: v.array(v.string()),
+    })),
+  }).index("by_username", ["username"]).index("by_stackId", ["stackId"]),
 
   skills: defineTable({
     userId: v.id("users"),
@@ -104,6 +109,9 @@ export default defineSchema({
     company: v.string(),
     role: v.string(),
     duration: v.string(),
+    startDate: v.optional(v.string()),
+    endDate: v.optional(v.string()),
+    isPresent: v.optional(v.boolean()),
     location: v.optional(v.string()),
     description: v.optional(v.string()),
     order: v.number(),
@@ -113,8 +121,13 @@ export default defineSchema({
     userId: v.id("users"),
     institution: v.string(),
     degree: v.string(),
+    subject: v.optional(v.string()),
     duration: v.string(),
+    startDate: v.optional(v.string()),
+    endDate: v.optional(v.string()),
+    isPresent: v.optional(v.boolean()),
     location: v.optional(v.string()),
+    description: v.optional(v.string()),
     order: v.number(),
   }).index("by_userId", ["userId"]),
 
@@ -133,6 +146,7 @@ export default defineSchema({
     issuer: v.optional(v.string()),
     issueDate: v.optional(v.string()),
     credentialUrl: v.optional(v.string()),
+    description: v.optional(v.string()),
     order: v.number(),
   }).index("by_userId", ["userId"]),
 
@@ -141,6 +155,9 @@ export default defineSchema({
     organization: v.string(),
     role: v.string(),
     duration: v.string(),
+    startDate: v.optional(v.string()),
+    endDate: v.optional(v.string()),
+    isPresent: v.optional(v.boolean()),
     description: v.optional(v.string()),
     order: v.number(),
   }).index("by_userId", ["userId"]),
