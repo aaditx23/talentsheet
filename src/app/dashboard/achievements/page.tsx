@@ -28,15 +28,17 @@ export default function AchievementsPage() {
   if (user === null) return <LoadingState message="User not found." />;
   if (user === undefined || achievements === undefined) return <LoadingState message="Loading achievements..." />;
 
+  const isAddValid = Boolean(title.trim() && date.trim());
+
   const handleAdd = async () => {
-    if (!title.trim()) return;
+    if (!isAddValid) return;
     setSaving(true);
     try {
       await addAchievement({
         userId: user._id,
-        title,
+        title: title.trim(),
         issuer: issuer || undefined,
-        date: date || undefined,
+        date: date.trim(),
         description: description || undefined,
       });
       setTitle("");
@@ -53,11 +55,23 @@ export default function AchievementsPage() {
       <PageHeader title="Achievements" description="Add achievements, awards, and recognitions." />
 
       <Card className="p-4 space-y-3">
-        <Input placeholder="Title" value={title} onChange={(e) => setTitle(e.target.value)} />
-        <Input placeholder="Issuer (optional)" value={issuer} onChange={(e) => setIssuer(e.target.value)} />
-        <MonthYearInput value={date} onChange={setDate} ariaLabel="Achievement month and year (optional)" />
-        <Input placeholder="Description (optional)" value={description} onChange={(e) => setDescription(e.target.value)} />
-        <Button onClick={handleAdd} disabled={saving}>{saving ? "Adding..." : "Add Achievement"}</Button>
+        <div>
+          <label className="text-sm font-medium mb-1 block">Title *</label>
+          <Input placeholder="Title" value={title} onChange={(e) => setTitle(e.target.value)} />
+        </div>
+        <div>
+          <label className="text-sm font-medium mb-1 block">Issuer</label>
+          <Input placeholder="Issuer (optional)" value={issuer} onChange={(e) => setIssuer(e.target.value)} />
+        </div>
+        <div>
+          <label className="text-sm font-medium mb-1 block">Date *</label>
+          <MonthYearInput value={date} onChange={setDate} ariaLabel="Achievement month and year" />
+        </div>
+        <div>
+          <label className="text-sm font-medium mb-1 block">Description</label>
+          <Input placeholder="Description (optional)" value={description} onChange={(e) => setDescription(e.target.value)} />
+        </div>
+        <Button onClick={handleAdd} disabled={saving || !isAddValid}>{saving ? "Adding..." : "Add Achievement"}</Button>
       </Card>
 
       <div className="space-y-3">

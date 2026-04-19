@@ -35,7 +35,6 @@ export default function EducationPage() {
   const [subject, setSubject] = useState("");
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
-  const [isPresent, setIsPresent] = useState(false);
   const [location, setLocation] = useState("");
   const [description, setDescription] = useState("");
   const [saving, setSaving] = useState(false);
@@ -46,20 +45,28 @@ export default function EducationPage() {
   if (user === null) return <LoadingState message="User not found." />;
   if (user === undefined || entries === undefined) return <LoadingState message="Loading education..." />;
 
+  const isAddValid = Boolean(
+    institution.trim() &&
+    degree.trim() &&
+    subject.trim() &&
+    startDate.trim() &&
+    endDate.trim(),
+  );
+
   const handleAdd = async () => {
-    if (!institution.trim() || !degree.trim() || !subject.trim() || !startDate || (!isPresent && !endDate)) return;
-    const duration = formatDateRange(startDate, endDate, isPresent);
+    if (!isAddValid) return;
+    const duration = formatDateRange(startDate, endDate, false);
     setSaving(true);
     try {
       await addEntry({
         userId: user._id,
-        institution,
-        degree,
-        subject,
+        institution: institution.trim(),
+        degree: degree.trim(),
+        subject: subject.trim(),
         duration,
-        startDate,
-        endDate: isPresent ? "" : endDate,
-        isPresent,
+        startDate: startDate.trim(),
+        endDate: endDate.trim(),
+        isPresent: false,
         location: location || undefined,
         description: description || undefined,
       });
@@ -68,7 +75,6 @@ export default function EducationPage() {
       setSubject("");
       setStartDate("");
       setEndDate("");
-      setIsPresent(false);
       setLocation("");
       setDescription("");
     } finally {
@@ -81,29 +87,37 @@ export default function EducationPage() {
       <PageHeader title="Education" description="Add education history for your portfolio." />
 
       <Card className="p-4 space-y-3">
-        <Input placeholder="Institution" value={institution} onChange={(e) => setInstitution(e.target.value)} />
-        <Input placeholder="Degree" value={degree} onChange={(e) => setDegree(e.target.value)} />
-        <Input placeholder="Subject (e.g. Computer Science)" value={subject} onChange={(e) => setSubject(e.target.value)} />
+        <div>
+          <label className="text-sm font-medium mb-1 block">Institution *</label>
+          <Input placeholder="Institution" value={institution} onChange={(e) => setInstitution(e.target.value)} />
+        </div>
+        <div>
+          <label className="text-sm font-medium mb-1 block">Degree *</label>
+          <Input placeholder="Degree" value={degree} onChange={(e) => setDegree(e.target.value)} />
+        </div>
+        <div>
+          <label className="text-sm font-medium mb-1 block">Subject *</label>
+          <Input placeholder="Subject (e.g. Computer Science)" value={subject} onChange={(e) => setSubject(e.target.value)} />
+        </div>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
           <div>
-            <label className="text-sm font-medium mb-1 block">Start Date</label>
+            <label className="text-sm font-medium mb-1 block">Start Date *</label>
             <MonthYearInput value={startDate} onChange={setStartDate} ariaLabel="Education start month and year" />
           </div>
           <div>
-            <label className="text-sm font-medium mb-1 block">End Date</label>
-            <MonthYearInput value={endDate} onChange={setEndDate} disabled={isPresent} ariaLabel="Education end month and year" />
+            <label className="text-sm font-medium mb-1 block">End Date *</label>
+            <MonthYearInput value={endDate} onChange={setEndDate} ariaLabel="Education end month and year" />
           </div>
         </div>
-        <label className="flex items-center gap-2 text-sm">
-          <input type="checkbox" checked={isPresent} onChange={(e) => setIsPresent(e.target.checked)} />
-          Present
-        </label>
-        <Input placeholder="Location (optional)" value={location} onChange={(e) => setLocation(e.target.value)} />
         <div>
-          <label className="text-sm font-medium mb-2 block">Description (Markdown)</label>
+          <label className="text-sm font-medium mb-1 block">Location</label>
+          <Input placeholder="Location (optional)" value={location} onChange={(e) => setLocation(e.target.value)} />
+        </div>
+        <div>
+          <label className="text-sm font-medium mb-2 block">Description</label>
           <MarkdownEditor value={description} onChange={setDescription} />
         </div>
-        <Button onClick={handleAdd} disabled={saving}>{saving ? "Adding..." : "Add Education"}</Button>
+        <Button onClick={handleAdd} disabled={saving || !isAddValid}>{saving ? "Adding..." : "Add Education"}</Button>
       </Card>
 
       <div className="space-y-3">
@@ -134,47 +148,59 @@ export default function EducationPage() {
           </DialogHeader>
           {editingItem && (
             <div className="space-y-3">
-              <Input value={editingItem.institution} onChange={(e) => setEditingItem({ ...editingItem, institution: e.target.value })} />
-              <Input value={editingItem.degree} onChange={(e) => setEditingItem({ ...editingItem, degree: e.target.value })} />
-              <Input value={editingItem.subject ?? ""} onChange={(e) => setEditingItem({ ...editingItem, subject: e.target.value })} />
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                <MonthYearInput
-                  value={editingItem.startDate ?? ""}
-                  onChange={(value) => setEditingItem({ ...editingItem, startDate: value })}
-                  ariaLabel="Edit education start month and year"
-                />
-                <MonthYearInput
-                  value={editingItem.endDate ?? ""}
-                  disabled={!!editingItem.isPresent}
-                  onChange={(value) => setEditingItem({ ...editingItem, endDate: value })}
-                  ariaLabel="Edit education end month and year"
-                />
+              <div>
+                <label className="text-sm font-medium mb-1 block">Institution *</label>
+                <Input value={editingItem.institution} onChange={(e) => setEditingItem({ ...editingItem, institution: e.target.value })} />
               </div>
-              <label className="flex items-center gap-2 text-sm">
-                <input
-                  type="checkbox"
-                  checked={!!editingItem.isPresent}
-                  onChange={(e) => setEditingItem({ ...editingItem, isPresent: e.target.checked, endDate: e.target.checked ? "" : editingItem.endDate })}
-                />
-                Present
-              </label>
-              <Input value={editingItem.location ?? ""} onChange={(e) => setEditingItem({ ...editingItem, location: e.target.value })} />
-              <MarkdownEditor value={editingItem.description ?? ""} onChange={(next) => setEditingItem({ ...editingItem, description: next })} />
+              <div>
+                <label className="text-sm font-medium mb-1 block">Degree *</label>
+                <Input value={editingItem.degree} onChange={(e) => setEditingItem({ ...editingItem, degree: e.target.value })} />
+              </div>
+              <div>
+                <label className="text-sm font-medium mb-1 block">Subject *</label>
+                <Input value={editingItem.subject ?? ""} onChange={(e) => setEditingItem({ ...editingItem, subject: e.target.value })} />
+              </div>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div>
+                  <label className="text-sm font-medium mb-1 block">Start Date *</label>
+                  <MonthYearInput
+                    value={editingItem.startDate ?? ""}
+                    onChange={(value) => setEditingItem({ ...editingItem, startDate: value })}
+                    ariaLabel="Edit education start month and year"
+                  />
+                </div>
+                <div>
+                  <label className="text-sm font-medium mb-1 block">End Date *</label>
+                  <MonthYearInput
+                    value={editingItem.endDate ?? ""}
+                    onChange={(value) => setEditingItem({ ...editingItem, endDate: value })}
+                    ariaLabel="Edit education end month and year"
+                  />
+                </div>
+              </div>
+              <div>
+                <label className="text-sm font-medium mb-1 block">Location</label>
+                <Input value={editingItem.location ?? ""} onChange={(e) => setEditingItem({ ...editingItem, location: e.target.value })} />
+              </div>
+              <div>
+                <label className="text-sm font-medium mb-2 block">Description</label>
+                <MarkdownEditor value={editingItem.description ?? ""} onChange={(next) => setEditingItem({ ...editingItem, description: next })} />
+              </div>
               <Button
-                disabled={editSaving || !editingItem.institution?.trim() || !editingItem.degree?.trim() || !editingItem.subject?.trim() || !editingItem.startDate || (!editingItem.isPresent && !editingItem.endDate)}
+                disabled={editSaving || !editingItem.institution?.trim() || !editingItem.degree?.trim() || !editingItem.subject?.trim() || !editingItem.startDate?.trim() || !editingItem.endDate?.trim()}
                 onClick={async () => {
                   setEditSaving(true);
                   try {
-                    const duration = formatDateRange(editingItem.startDate, editingItem.endDate, editingItem.isPresent, editingItem.duration);
+                    const duration = formatDateRange(editingItem.startDate, editingItem.endDate, false, editingItem.duration);
                     await updateEntry({
                       id: editingItem._id,
-                      institution: editingItem.institution,
-                      degree: editingItem.degree,
-                      subject: editingItem.subject ?? "",
+                      institution: editingItem.institution.trim(),
+                      degree: editingItem.degree.trim(),
+                      subject: editingItem.subject?.trim() ?? "",
                       duration,
-                      startDate: editingItem.startDate,
-                      endDate: editingItem.isPresent ? "" : editingItem.endDate,
-                      isPresent: !!editingItem.isPresent,
+                      startDate: editingItem.startDate.trim(),
+                      endDate: editingItem.endDate.trim(),
+                      isPresent: false,
                       location: editingItem.location ?? "",
                       description: editingItem.description ?? "",
                     });

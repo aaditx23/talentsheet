@@ -19,7 +19,7 @@ export default function ProfilePage() {
   return (
     <div className="space-y-8 max-w-2xl mx-auto">
       <PageHeader
-        title="Profile Settings"
+        title="Profile"
         description="Manage how your portfolio appears publicly."
       />
       <ProfileForm user={user as any} />

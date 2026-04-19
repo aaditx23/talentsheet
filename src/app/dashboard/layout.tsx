@@ -44,7 +44,7 @@ function DashboardNav() {
             variant={isActive("/dashboard/profile") ? "secondary" : "ghost"}
             className="w-full justify-start"
           >
-            Profile Settings
+            Profile
           </Button>
         </Link>
         <Link href="/dashboard/projects">
@@ -52,7 +52,7 @@ function DashboardNav() {
             variant={isActive("/dashboard/projects") ? "secondary" : "ghost"}
             className="w-full justify-start"
           >
-            Manage Projects
+            Projects
           </Button>
         </Link>
         <Link href="/dashboard/skills">
@@ -60,7 +60,7 @@ function DashboardNav() {
             variant={isActive("/dashboard/skills") ? "secondary" : "ghost"}
             className="w-full justify-start"
           >
-            Manage Skills
+            Skills
           </Button>
         </Link>
         <Link href="/dashboard/experience">
@@ -101,6 +101,14 @@ function DashboardNav() {
             className="w-full justify-start"
           >
             Co-curricular
+          </Button>
+        </Link>
+        <Link href="/dashboard/research-publications">
+          <Button
+            variant={isActive("/dashboard/research-publications") ? "secondary" : "ghost"}
+            className="w-full justify-start"
+          >
+            Research & Publications
           </Button>
         </Link>
         <Link href="/dashboard/customization">

@@ -161,4 +161,14 @@ export default defineSchema({
     description: v.optional(v.string()),
     order: v.number(),
   }).index("by_userId", ["userId"]),
+
+  researchPublications: defineTable({
+    userId: v.id("users"),
+    title: v.string(),
+    venue: v.optional(v.string()),
+    date: v.optional(v.string()),
+    link: v.optional(v.string()),
+    description: v.optional(v.string()),
+    order: v.number(),
+  }).index("by_userId", ["userId"]),
 });

@@ -29,7 +29,7 @@ export default function ProjectsPage() {
 
   return (
     <div className="space-y-8 max-w-4xl mx-auto">
-      <PageHeader title="Manage Projects" description="Add or remove portfolio projects. Changes sync instantly." />
+      <PageHeader title="Projects" description="Add or remove portfolio projects. Changes sync instantly." />
       <div className="border rounded-lg p-6 bg-card">
         <h2 className="text-lg font-semibold mb-4">Add New Project</h2>
         <ProjectForm

@@ -34,7 +34,6 @@ export default function ExtracurricularPage() {
   const [role, setRole] = useState("");
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
-  const [isPresent, setIsPresent] = useState(false);
   const [description, setDescription] = useState("");
   const [saving, setSaving] = useState(false);
   const [editingItem, setEditingItem] = useState<any | null>(null);
@@ -44,26 +43,33 @@ export default function ExtracurricularPage() {
   if (user === null) return <LoadingState message="User not found." />;
   if (user === undefined || activities === undefined) return <LoadingState message="Loading co-curricular..." />;
 
+  const isAddValid = Boolean(
+    organization.trim() &&
+    role.trim() &&
+    startDate.trim() &&
+    endDate.trim() &&
+    description.trim(),
+  );
+
   const handleAdd = async () => {
-    if (!organization.trim() || !role.trim() || !startDate || (!isPresent && !endDate)) return;
-    const duration = formatDateRange(startDate, endDate, isPresent);
+    if (!isAddValid) return;
+    const duration = formatDateRange(startDate, endDate, false);
     setSaving(true);
     try {
       await addActivity({
         userId: user._id,
-        organization,
-        role,
+        organization: organization.trim(),
+        role: role.trim(),
         duration,
-        startDate,
-        endDate: isPresent ? "" : endDate,
-        isPresent,
-        description: description || undefined,
+        startDate: startDate.trim(),
+        endDate: endDate.trim(),
+        isPresent: false,
+        description: description.trim(),
       });
       setOrganization("");
       setRole("");
       setStartDate("");
       setEndDate("");
-      setIsPresent(false);
       setDescription("");
     } finally {
       setSaving(false);
@@ -75,27 +81,29 @@ export default function ExtracurricularPage() {
       <PageHeader title="Co-curricular" description="Add clubs, volunteering, and activities." />
 
       <Card className="p-4 space-y-3">
-        <Input placeholder="Organization" value={organization} onChange={(e) => setOrganization(e.target.value)} />
-        <Input placeholder="Role" value={role} onChange={(e) => setRole(e.target.value)} />
+        <div>
+          <label className="text-sm font-medium mb-1 block">Organization *</label>
+          <Input placeholder="Organization" value={organization} onChange={(e) => setOrganization(e.target.value)} />
+        </div>
+        <div>
+          <label className="text-sm font-medium mb-1 block">Role *</label>
+          <Input placeholder="Role" value={role} onChange={(e) => setRole(e.target.value)} />
+        </div>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
           <div>
-            <label className="text-sm font-medium mb-1 block">Start Date</label>
+            <label className="text-sm font-medium mb-1 block">Start Date *</label>
             <MonthYearInput value={startDate} onChange={setStartDate} ariaLabel="Activity start month and year" />
           </div>
           <div>
-            <label className="text-sm font-medium mb-1 block">End Date</label>
-            <MonthYearInput value={endDate} onChange={setEndDate} disabled={isPresent} ariaLabel="Activity end month and year" />
+            <label className="text-sm font-medium mb-1 block">End Date *</label>
+            <MonthYearInput value={endDate} onChange={setEndDate} ariaLabel="Activity end month and year" />
           </div>
         </div>
-        <label className="flex items-center gap-2 text-sm">
-          <input type="checkbox" checked={isPresent} onChange={(e) => setIsPresent(e.target.checked)} />
-          Present
-        </label>
         <div>
-          <label className="text-sm font-medium mb-2 block">Description (Markdown)</label>
+          <label className="text-sm font-medium mb-2 block">Description *</label>
           <MarkdownEditor value={description} onChange={setDescription} />
         </div>
-        <Button onClick={handleAdd} disabled={saving}>{saving ? "Adding..." : "Add Activity"}</Button>
+        <Button onClick={handleAdd} disabled={saving || !isAddValid}>{saving ? "Adding..." : "Add Activity"}</Button>
       </Card>
 
       <div className="space-y-3">
@@ -126,45 +134,51 @@ export default function ExtracurricularPage() {
           </DialogHeader>
           {editingItem && (
             <div className="space-y-3">
-              <Input value={editingItem.organization} onChange={(e) => setEditingItem({ ...editingItem, organization: e.target.value })} />
-              <Input value={editingItem.role} onChange={(e) => setEditingItem({ ...editingItem, role: e.target.value })} />
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                <MonthYearInput
-                  value={editingItem.startDate ?? ""}
-                  onChange={(value) => setEditingItem({ ...editingItem, startDate: value })}
-                  ariaLabel="Edit activity start month and year"
-                />
-                <MonthYearInput
-                  value={editingItem.endDate ?? ""}
-                  disabled={!!editingItem.isPresent}
-                  onChange={(value) => setEditingItem({ ...editingItem, endDate: value })}
-                  ariaLabel="Edit activity end month and year"
-                />
+              <div>
+                <label className="text-sm font-medium mb-1 block">Organization *</label>
+                <Input value={editingItem.organization} onChange={(e) => setEditingItem({ ...editingItem, organization: e.target.value })} />
               </div>
-              <label className="flex items-center gap-2 text-sm">
-                <input
-                  type="checkbox"
-                  checked={!!editingItem.isPresent}
-                  onChange={(e) => setEditingItem({ ...editingItem, isPresent: e.target.checked, endDate: e.target.checked ? "" : editingItem.endDate })}
-                />
-                Present
-              </label>
-              <MarkdownEditor value={editingItem.description ?? ""} onChange={(next) => setEditingItem({ ...editingItem, description: next })} />
+              <div>
+                <label className="text-sm font-medium mb-1 block">Role *</label>
+                <Input value={editingItem.role} onChange={(e) => setEditingItem({ ...editingItem, role: e.target.value })} />
+              </div>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div>
+                  <label className="text-sm font-medium mb-1 block">Start Date *</label>
+                  <MonthYearInput
+                    value={editingItem.startDate ?? ""}
+                    onChange={(value) => setEditingItem({ ...editingItem, startDate: value })}
+                    ariaLabel="Edit activity start month and year"
+                  />
+                </div>
+                <div>
+                  <label className="text-sm font-medium mb-1 block">End Date *</label>
+                  <MonthYearInput
+                    value={editingItem.endDate ?? ""}
+                    onChange={(value) => setEditingItem({ ...editingItem, endDate: value })}
+                    ariaLabel="Edit activity end month and year"
+                  />
+                </div>
+              </div>
+              <div>
+                <label className="text-sm font-medium mb-2 block">Description *</label>
+                <MarkdownEditor value={editingItem.description ?? ""} onChange={(next) => setEditingItem({ ...editingItem, description: next })} />
+              </div>
               <Button
-                disabled={editSaving || !editingItem.organization?.trim() || !editingItem.role?.trim() || !editingItem.startDate || (!editingItem.isPresent && !editingItem.endDate)}
+                disabled={editSaving || !editingItem.organization?.trim() || !editingItem.role?.trim() || !editingItem.startDate?.trim() || !editingItem.endDate?.trim() || !editingItem.description?.trim()}
                 onClick={async () => {
                   setEditSaving(true);
                   try {
-                    const duration = formatDateRange(editingItem.startDate, editingItem.endDate, editingItem.isPresent, editingItem.duration);
+                    const duration = formatDateRange(editingItem.startDate, editingItem.endDate, false, editingItem.duration);
                     await updateActivity({
                       id: editingItem._id,
-                      organization: editingItem.organization,
-                      role: editingItem.role,
+                      organization: editingItem.organization.trim(),
+                      role: editingItem.role.trim(),
                       duration,
-                      startDate: editingItem.startDate,
-                      endDate: editingItem.isPresent ? "" : editingItem.endDate,
-                      isPresent: !!editingItem.isPresent,
-                      description: editingItem.description ?? "",
+                      startDate: editingItem.startDate.trim(),
+                      endDate: editingItem.endDate.trim(),
+                      isPresent: false,
+                      description: editingItem.description.trim(),
                     });
                     setEditingItem(null);
                   } finally {

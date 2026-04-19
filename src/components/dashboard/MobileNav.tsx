@@ -17,6 +17,7 @@ const NAV_LINKS = [
   { href: "/dashboard/achievements", label: "Achievements" },
   { href: "/dashboard/certifications", label: "Certifications" },
   { href: "/dashboard/extracurricular", label: "Co-curricular" },
+  { href: "/dashboard/research-publications", label: "Research & Publications" },
   { href: "/dashboard/customization", label: "Customization" },
 ];
 

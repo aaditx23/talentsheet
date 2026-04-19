@@ -6,6 +6,7 @@ export type PortfolioSectionKey =
   | "achievements"
   | "certifications"
   | "extracurricular"
+  | "researchPublications"
   | "projects";
 
 export const DEFAULT_SECTION_ORDER: PortfolioSectionKey[] = [
@@ -16,6 +17,7 @@ export const DEFAULT_SECTION_ORDER: PortfolioSectionKey[] = [
   "achievements",
   "certifications",
   "extracurricular",
+  "researchPublications",
   "projects",
 ];
 
@@ -27,6 +29,7 @@ export const SECTION_LABELS: Record<PortfolioSectionKey, string> = {
   achievements: "Achievements",
   certifications: "Certifications",
   extracurricular: "Co-curricular",
+  researchPublications: "Research & Publications",
   projects: "Projects & Experience",
 };
 

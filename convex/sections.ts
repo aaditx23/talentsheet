@@ -8,7 +8,8 @@ async function nextOrderForTable(
     | "educationEntries"
     | "achievements"
     | "certifications"
-    | "extracurriculars",
+    | "extracurriculars"
+    | "researchPublications",
   userId: any,
 ) {
   const items = await ctx.db.query(table).withIndex("by_userId", (q: any) => q.eq("userId", userId)).collect();
@@ -253,6 +254,54 @@ export const updateExtracurricular = mutation({
     startDate: v.optional(v.string()),
     endDate: v.optional(v.string()),
     isPresent: v.optional(v.boolean()),
+    description: v.optional(v.string()),
+  },
+  handler: async (ctx, args) => {
+    const { id, ...updates } = args;
+    await ctx.db.patch(id, updates);
+  },
+});
+
+export const getResearchPublicationsByUser = query({
+  args: { userId: v.id("users") },
+  handler: async (ctx, args) => {
+    const items = await ctx.db
+      .query("researchPublications")
+      .withIndex("by_userId", (q) => q.eq("userId", args.userId))
+      .collect();
+    return sortByOrder(items as any);
+  },
+});
+
+export const addResearchPublication = mutation({
+  args: {
+    userId: v.id("users"),
+    title: v.string(),
+    venue: v.optional(v.string()),
+    date: v.optional(v.string()),
+    link: v.optional(v.string()),
+    description: v.optional(v.string()),
+  },
+  handler: async (ctx, args) => {
+    const order = await nextOrderForTable(ctx, "researchPublications", args.userId);
+    return ctx.db.insert("researchPublications", { ...args, order });
+  },
+});
+
+export const deleteResearchPublication = mutation({
+  args: { id: v.id("researchPublications") },
+  handler: async (ctx, args) => {
+    await ctx.db.delete(args.id);
+  },
+});
+
+export const updateResearchPublication = mutation({
+  args: {
+    id: v.id("researchPublications"),
+    title: v.string(),
+    venue: v.optional(v.string()),
+    date: v.optional(v.string()),
+    link: v.optional(v.string()),
     description: v.optional(v.string()),
   },
   handler: async (ctx, args) => {

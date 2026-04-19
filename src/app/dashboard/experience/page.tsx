@@ -34,7 +34,6 @@ export default function ExperiencePage() {
   const [role, setRole] = useState("");
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
-  const [isPresent, setIsPresent] = useState(false);
   const [location, setLocation] = useState("");
   const [description, setDescription] = useState("");
   const [saving, setSaving] = useState(false);
@@ -45,27 +44,35 @@ export default function ExperiencePage() {
   if (user === null) return <LoadingState message="User not found." />;
   if (user === undefined || experiences === undefined) return <LoadingState message="Loading experience..." />;
 
+  const isAddValid = Boolean(
+    company.trim() &&
+    role.trim() &&
+    startDate.trim() &&
+    endDate.trim() &&
+    location.trim() &&
+    description.trim(),
+  );
+
   const handleAdd = async () => {
-    if (!company.trim() || !role.trim() || !startDate || (!isPresent && !endDate)) return;
-    const duration = formatDateRange(startDate, endDate, isPresent);
+    if (!isAddValid) return;
+    const duration = formatDateRange(startDate, endDate, false);
     setSaving(true);
     try {
       await addExperience({
         userId: user._id,
-        company,
-        role,
+        company: company.trim(),
+        role: role.trim(),
         duration,
-        startDate,
-        endDate: isPresent ? "" : endDate,
-        isPresent,
-        location: location || undefined,
-        description: description || undefined,
+        startDate: startDate.trim(),
+        endDate: endDate.trim(),
+        isPresent: false,
+        location: location.trim(),
+        description: description.trim(),
       });
       setCompany("");
       setRole("");
       setStartDate("");
       setEndDate("");
-      setIsPresent(false);
       setLocation("");
       setDescription("");
     } finally {
@@ -78,28 +85,33 @@ export default function ExperiencePage() {
       <PageHeader title="Experience" description="Add work experiences for your portfolio." />
 
       <Card className="p-4 space-y-3">
-        <Input placeholder="Company" value={company} onChange={(e) => setCompany(e.target.value)} />
-        <Input placeholder="Role" value={role} onChange={(e) => setRole(e.target.value)} />
+        <div>
+          <label className="text-sm font-medium mb-1 block">Company *</label>
+          <Input placeholder="Company" value={company} onChange={(e) => setCompany(e.target.value)} />
+        </div>
+        <div>
+          <label className="text-sm font-medium mb-1 block">Role *</label>
+          <Input placeholder="Role" value={role} onChange={(e) => setRole(e.target.value)} />
+        </div>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
           <div>
-            <label className="text-sm font-medium mb-1 block">Start Date</label>
+            <label className="text-sm font-medium mb-1 block">Start Date *</label>
             <MonthYearInput value={startDate} onChange={setStartDate} ariaLabel="Experience start month and year" />
           </div>
           <div>
-            <label className="text-sm font-medium mb-1 block">End Date</label>
-            <MonthYearInput value={endDate} onChange={setEndDate} disabled={isPresent} ariaLabel="Experience end month and year" />
+            <label className="text-sm font-medium mb-1 block">End Date *</label>
+            <MonthYearInput value={endDate} onChange={setEndDate} ariaLabel="Experience end month and year" />
           </div>
         </div>
-        <label className="flex items-center gap-2 text-sm">
-          <input type="checkbox" checked={isPresent} onChange={(e) => setIsPresent(e.target.checked)} />
-          Present
-        </label>
-        <Input placeholder="Location (optional)" value={location} onChange={(e) => setLocation(e.target.value)} />
         <div>
-          <label className="text-sm font-medium mb-2 block">Description (Markdown)</label>
+          <label className="text-sm font-medium mb-1 block">Location *</label>
+          <Input placeholder="Location" value={location} onChange={(e) => setLocation(e.target.value)} />
+        </div>
+        <div>
+          <label className="text-sm font-medium mb-2 block">Description *</label>
           <MarkdownEditor value={description} onChange={setDescription} />
         </div>
-        <Button onClick={handleAdd} disabled={saving}>{saving ? "Adding..." : "Add Experience"}</Button>
+        <Button onClick={handleAdd} disabled={saving || !isAddValid}>{saving ? "Adding..." : "Add Experience"}</Button>
       </Card>
 
       <div className="space-y-3">
@@ -129,47 +141,56 @@ export default function ExperiencePage() {
           </DialogHeader>
           {editingItem && (
             <div className="space-y-3">
-              <Input value={editingItem.company} onChange={(e) => setEditingItem({ ...editingItem, company: e.target.value })} />
-              <Input value={editingItem.role} onChange={(e) => setEditingItem({ ...editingItem, role: e.target.value })} />
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                <MonthYearInput
-                  value={editingItem.startDate ?? ""}
-                  onChange={(value) => setEditingItem({ ...editingItem, startDate: value })}
-                  ariaLabel="Edit experience start month and year"
-                />
-                <MonthYearInput
-                  value={editingItem.endDate ?? ""}
-                  disabled={!!editingItem.isPresent}
-                  onChange={(value) => setEditingItem({ ...editingItem, endDate: value })}
-                  ariaLabel="Edit experience end month and year"
-                />
+              <div>
+                <label className="text-sm font-medium mb-1 block">Company *</label>
+                <Input value={editingItem.company} onChange={(e) => setEditingItem({ ...editingItem, company: e.target.value })} />
               </div>
-              <label className="flex items-center gap-2 text-sm">
-                <input
-                  type="checkbox"
-                  checked={!!editingItem.isPresent}
-                  onChange={(e) => setEditingItem({ ...editingItem, isPresent: e.target.checked, endDate: e.target.checked ? "" : editingItem.endDate })}
-                />
-                Present
-              </label>
-              <Input value={editingItem.location ?? ""} onChange={(e) => setEditingItem({ ...editingItem, location: e.target.value })} />
-              <MarkdownEditor value={editingItem.description ?? ""} onChange={(next) => setEditingItem({ ...editingItem, description: next })} />
+              <div>
+                <label className="text-sm font-medium mb-1 block">Role *</label>
+                <Input value={editingItem.role} onChange={(e) => setEditingItem({ ...editingItem, role: e.target.value })} />
+              </div>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div>
+                  <label className="text-sm font-medium mb-1 block">Start Date *</label>
+                  <MonthYearInput
+                    value={editingItem.startDate ?? ""}
+                    onChange={(value) => setEditingItem({ ...editingItem, startDate: value })}
+                    ariaLabel="Edit experience start month and year"
+                  />
+                </div>
+                <div>
+                  <label className="text-sm font-medium mb-1 block">End Date *</label>
+                  <MonthYearInput
+                    value={editingItem.endDate ?? ""}
+                    onChange={(value) => setEditingItem({ ...editingItem, endDate: value })}
+                    ariaLabel="Edit experience end month and year"
+                  />
+                </div>
+              </div>
+              <div>
+                <label className="text-sm font-medium mb-1 block">Location *</label>
+                <Input value={editingItem.location ?? ""} onChange={(e) => setEditingItem({ ...editingItem, location: e.target.value })} />
+              </div>
+              <div>
+                <label className="text-sm font-medium mb-2 block">Description *</label>
+                <MarkdownEditor value={editingItem.description ?? ""} onChange={(next) => setEditingItem({ ...editingItem, description: next })} />
+              </div>
               <Button
-                disabled={editSaving || !editingItem.company?.trim() || !editingItem.role?.trim() || !editingItem.startDate || (!editingItem.isPresent && !editingItem.endDate)}
+                disabled={editSaving || !editingItem.company?.trim() || !editingItem.role?.trim() || !editingItem.startDate?.trim() || !editingItem.endDate?.trim() || !editingItem.location?.trim() || !editingItem.description?.trim()}
                 onClick={async () => {
                   setEditSaving(true);
                   try {
-                    const duration = formatDateRange(editingItem.startDate, editingItem.endDate, editingItem.isPresent, editingItem.duration);
+                    const duration = formatDateRange(editingItem.startDate, editingItem.endDate, false, editingItem.duration);
                     await updateExperience({
                       id: editingItem._id,
-                      company: editingItem.company,
-                      role: editingItem.role,
+                      company: editingItem.company.trim(),
+                      role: editingItem.role.trim(),
                       duration,
-                      startDate: editingItem.startDate,
-                      endDate: editingItem.isPresent ? "" : editingItem.endDate,
-                      isPresent: !!editingItem.isPresent,
-                      location: editingItem.location ?? "",
-                      description: editingItem.description ?? "",
+                      startDate: editingItem.startDate.trim(),
+                      endDate: editingItem.endDate.trim(),
+                      isPresent: false,
+                      location: editingItem.location.trim(),
+                      description: editingItem.description.trim(),
                     });
                     setEditingItem(null);
                   } finally {

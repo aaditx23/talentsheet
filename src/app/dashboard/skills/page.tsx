@@ -63,7 +63,7 @@ export default function SkillsPage() {
   return (
     <div className="space-y-8 max-w-4xl mx-auto">
       <PageHeader
-        title="Manage Skills"
+        title="Skills"
         description="Add technical skills displayed on your public portfolio."
       />
       <SkillForm

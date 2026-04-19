@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { cn } from "@/lib/utils";
 
 interface MonthYearInputProps {
@@ -14,18 +14,18 @@ interface MonthYearInputProps {
 }
 
 const MONTHS = [
-  { value: "01", label: "Jan" },
-  { value: "02", label: "Feb" },
-  { value: "03", label: "Mar" },
-  { value: "04", label: "Apr" },
+  { value: "01", label: "January" },
+  { value: "02", label: "February" },
+  { value: "03", label: "March" },
+  { value: "04", label: "April" },
   { value: "05", label: "May" },
-  { value: "06", label: "Jun" },
-  { value: "07", label: "Jul" },
-  { value: "08", label: "Aug" },
-  { value: "09", label: "Sep" },
+  { value: "06", label: "June" },
+  { value: "07", label: "July" },
+  { value: "08", label: "August" },
+  { value: "09", label: "September" },
   { value: "10", label: "Oct" },
-  { value: "11", label: "Nov" },
-  { value: "12", label: "Dec" },
+  { value: "11", label: "November" },
+  { value: "12", label: "December" },
 ];
 
 function parseValue(value?: string) {
@@ -58,6 +58,13 @@ export function MonthYearInput({
   }, [startYear, endYear]);
 
   const parsed = parseValue(value);
+  const [month, setMonth] = useState(parsed.month);
+  const [year, setYear] = useState(parsed.year);
+
+  useEffect(() => {
+    setMonth(parsed.month);
+    setYear(parsed.year);
+  }, [parsed.month, parsed.year]);
 
   const emit = (nextYear: string, nextMonth: string) => {
     if (nextYear && nextMonth) {
@@ -71,9 +78,13 @@ export function MonthYearInput({
     <div className={cn("grid grid-cols-2 gap-2", className)} aria-label={ariaLabel}>
       <select
         className="h-8 w-full rounded-lg border border-input bg-transparent px-2.5 py-1 text-sm text-foreground outline-none transition-colors focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 disabled:pointer-events-none disabled:cursor-not-allowed disabled:bg-input/50 disabled:opacity-50"
-        value={parsed.month}
+        value={month}
         disabled={disabled}
-        onChange={(e) => emit(parsed.year, e.target.value)}
+        onChange={(e) => {
+          const nextMonth = e.target.value;
+          setMonth(nextMonth);
+          emit(year, nextMonth);
+        }}
       >
         <option value="">Month</option>
         {MONTHS.map((month) => (
@@ -85,9 +96,13 @@ export function MonthYearInput({
 
       <select
         className="h-8 w-full rounded-lg border border-input bg-transparent px-2.5 py-1 text-sm text-foreground outline-none transition-colors focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 disabled:pointer-events-none disabled:cursor-not-allowed disabled:bg-input/50 disabled:opacity-50"
-        value={parsed.year}
+        value={year}
         disabled={disabled}
-        onChange={(e) => emit(e.target.value, parsed.month)}
+        onChange={(e) => {
+          const nextYear = e.target.value;
+          setYear(nextYear);
+          emit(nextYear, month);
+        }}
       >
         <option value="">Year</option>
         {years.map((year) => (

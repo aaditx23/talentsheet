@@ -59,6 +59,14 @@ export function ProjectForm({
   const [liveLink, setLiveLink] = useState(initialValues?.liveLink ?? "");
   const [saving, setSaving] = useState(false);
 
+  const isFormValid = Boolean(
+    title.trim() &&
+    category.trim() &&
+    githubUrl.trim() &&
+    screenshotsPath.trim() &&
+    description.trim(),
+  );
+
   // Auto-suggest screenshot path when GitHub URL changes (only if user hasn't typed one)
   const handleGithubUrlChange = (val: string) => {
     setGithubUrl(val);
@@ -78,10 +86,18 @@ export function ProjectForm({
 
   }
   const handleSubmit = async () => {
-    if (!title.trim() || !category.trim()) return;
+    if (!isFormValid) return;
     setSaving(true);
     try {
-      await onSubmit({ userId, title, category, githubUrl, screenshotsPath, description: description ?? "", liveLink });
+      await onSubmit({
+        userId,
+        title: title.trim(),
+        category: category.trim(),
+        githubUrl: githubUrl.trim(),
+        screenshotsPath: screenshotsPath.trim(),
+        description: description.trim(),
+        liveLink: liveLink.trim() || undefined,
+      });
       clearAll()
     } finally {
       
@@ -93,11 +109,11 @@ export function ProjectForm({
     <div className="grid gap-4">
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div>
-          <label className="text-sm font-medium mb-1 block">Project Title</label>
+          <label className="text-sm font-medium mb-1 block">Project Title *</label>
           <Input placeholder="e.g. FuelSense App" value={title} onChange={(e) => setTitle(e.target.value)} />
         </div>
         <div>
-          <label className="text-sm font-medium mb-1 block">Category</label>
+          <label className="text-sm font-medium mb-1 block">Category *</label>
           <SuggestionInput
             value={category}
             placeholder="e.g. Android, Backend, Flutter"
@@ -108,12 +124,12 @@ export function ProjectForm({
         </div>
       </div>
       <div>
-        <label className="text-sm font-medium mb-1 block">Repository URL</label>
+        <label className="text-sm font-medium mb-1 block">Repository URL *</label>
         <Input placeholder="GitHub or GitLab" value={githubUrl} onChange={(e) => handleGithubUrlChange(e.target.value)} />
       </div>
       <div>
         <label className="text-sm font-medium mb-1 block">
-          Screenshots Folder Path{" "}
+          Screenshots Folder Path *{" "}
           <span className="text-muted-foreground font-normal text-xs">(folder inside the repo, auto-filled)</span>
         </label>
         <Input placeholder="screenshots" value={screenshotsPath} onChange={(e) => setScreenshotsPath(extractFolderPath(e.target.value))} />
@@ -124,9 +140,8 @@ export function ProjectForm({
       </div>
       <div>
         <label className="text-sm font-medium mb-2 block">
-          Description{" "}
-          <span className="text-muted-foreground font-normal text-xs">(Markdown — bullets become PDF bullet points)</span>
-        </label>
+          Description *{" "}
+          </label>
         <div data-color-mode={mode}>
           <MDEditor
             value={description}
@@ -143,7 +158,7 @@ export function ProjectForm({
           />
         </div>
       </div>
-      <Button onClick={handleSubmit} disabled={saving || !title.trim() || !category.trim()}>
+      <Button onClick={handleSubmit} disabled={saving || !isFormValid}>
         {saving ? "Saving..." : submitLabel}
       </Button>
     </div>

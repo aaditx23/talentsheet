@@ -34,15 +34,17 @@ export default function CertificationsPage() {
   if (user === null) return <LoadingState message="User not found." />;
   if (user === undefined || certifications === undefined) return <LoadingState message="Loading certifications..." />;
 
+  const isAddValid = Boolean(name.trim() && issueDate.trim());
+
   const handleAdd = async () => {
-    if (!name.trim()) return;
+    if (!isAddValid) return;
     setSaving(true);
     try {
       await addCertification({
         userId: user._id,
-        name,
+        name: name.trim(),
         issuer: issuer || undefined,
-        issueDate: issueDate || undefined,
+        issueDate: issueDate.trim(),
         credentialUrl: credentialUrl || undefined,
         description: description || undefined,
       });
@@ -61,15 +63,27 @@ export default function CertificationsPage() {
       <PageHeader title="Certifications" description="Add certifications and credential links." />
 
       <Card className="p-4 space-y-3">
-        <Input placeholder="Certification name" value={name} onChange={(e) => setName(e.target.value)} />
-        <Input placeholder="Issuer (optional)" value={issuer} onChange={(e) => setIssuer(e.target.value)} />
-        <MonthYearInput value={issueDate} onChange={setIssueDate} ariaLabel="Issue month and year (optional)" />
-        <Input placeholder="Credential URL (optional)" value={credentialUrl} onChange={(e) => setCredentialUrl(e.target.value)} />
         <div>
-          <label className="text-sm font-medium mb-2 block">Description (Markdown)</label>
+          <label className="text-sm font-medium mb-1 block">Certification Name *</label>
+          <Input placeholder="Certification name" value={name} onChange={(e) => setName(e.target.value)} />
+        </div>
+        <div>
+          <label className="text-sm font-medium mb-1 block">Issuer</label>
+          <Input placeholder="Issuer (optional)" value={issuer} onChange={(e) => setIssuer(e.target.value)} />
+        </div>
+        <div>
+          <label className="text-sm font-medium mb-1 block">Issue Date *</label>
+          <MonthYearInput value={issueDate} onChange={setIssueDate} ariaLabel="Issue month and year" />
+        </div>
+        <div>
+          <label className="text-sm font-medium mb-1 block">Credential URL</label>
+          <Input placeholder="Credential URL (optional)" value={credentialUrl} onChange={(e) => setCredentialUrl(e.target.value)} />
+        </div>
+        <div>
+          <label className="text-sm font-medium mb-2 block">Description</label>
           <MarkdownEditor value={description} onChange={setDescription} />
         </div>
-        <Button onClick={handleAdd} disabled={saving}>{saving ? "Adding..." : "Add Certification"}</Button>
+        <Button onClick={handleAdd} disabled={saving || !isAddValid}>{saving ? "Adding..." : "Add Certification"}</Button>
       </Card>
 
       <div className="space-y-3">
@@ -100,25 +114,40 @@ export default function CertificationsPage() {
           </DialogHeader>
           {editingItem && (
             <div className="space-y-3">
-              <Input value={editingItem.name} onChange={(e) => setEditingItem({ ...editingItem, name: e.target.value })} />
-              <Input value={editingItem.issuer ?? ""} onChange={(e) => setEditingItem({ ...editingItem, issuer: e.target.value })} />
-              <MonthYearInput
-                value={editingItem.issueDate ?? ""}
-                onChange={(value) => setEditingItem({ ...editingItem, issueDate: value })}
-                ariaLabel="Edit issue month and year (optional)"
-              />
-              <Input value={editingItem.credentialUrl ?? ""} onChange={(e) => setEditingItem({ ...editingItem, credentialUrl: e.target.value })} />
-              <MarkdownEditor value={editingItem.description ?? ""} onChange={(next) => setEditingItem({ ...editingItem, description: next })} />
+              <div>
+                <label className="text-sm font-medium mb-1 block">Certification Name *</label>
+                <Input value={editingItem.name} onChange={(e) => setEditingItem({ ...editingItem, name: e.target.value })} />
+              </div>
+              <div>
+                <label className="text-sm font-medium mb-1 block">Issuer</label>
+                <Input value={editingItem.issuer ?? ""} onChange={(e) => setEditingItem({ ...editingItem, issuer: e.target.value })} />
+              </div>
+              <div>
+                <label className="text-sm font-medium mb-1 block">Issue Date *</label>
+                <MonthYearInput
+                  value={editingItem.issueDate ?? ""}
+                  onChange={(value) => setEditingItem({ ...editingItem, issueDate: value })}
+                  ariaLabel="Edit issue month and year"
+                />
+              </div>
+              <div>
+                <label className="text-sm font-medium mb-1 block">Credential URL</label>
+                <Input value={editingItem.credentialUrl ?? ""} onChange={(e) => setEditingItem({ ...editingItem, credentialUrl: e.target.value })} />
+              </div>
+              <div>
+                <label className="text-sm font-medium mb-2 block">Description</label>
+                <MarkdownEditor value={editingItem.description ?? ""} onChange={(next) => setEditingItem({ ...editingItem, description: next })} />
+              </div>
               <Button
-                disabled={editSaving || !editingItem.name?.trim()}
+                disabled={editSaving || !editingItem.name?.trim() || !editingItem.issueDate?.trim()}
                 onClick={async () => {
                   setEditSaving(true);
                   try {
                     await updateCertification({
                       id: editingItem._id,
-                      name: editingItem.name,
+                      name: editingItem.name.trim(),
                       issuer: editingItem.issuer ?? "",
-                      issueDate: editingItem.issueDate ?? "",
+                      issueDate: editingItem.issueDate.trim(),
                       credentialUrl: editingItem.credentialUrl ?? "",
                       description: editingItem.description ?? "",
                     });
